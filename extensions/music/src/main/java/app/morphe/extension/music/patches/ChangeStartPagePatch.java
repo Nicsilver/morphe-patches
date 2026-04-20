@@ -87,23 +87,22 @@ public final class ChangeStartPagePatch {
 
     public static String overrideBrowseId(@Nullable String original) {
         try {
-            if (forceHome && "FEmusic_home".equals(original)) {
-                forceHome = false;
+            StartPage startPage = Settings.CHANGE_START_PAGE.get();
+            Logger.printDebug(() -> "Original browseId: " + original + " startPage: " + startPage);
+
+            if ("FEmusic_home".equals(original)) {
+                if (forceHome) {
+                    forceHome = false;
+                    return original;
+                }
                 return original;
             }
-
-            StartPage startPage = Settings.CHANGE_START_PAGE.get();
 
             if (!startPage.isBrowseId()) {
                 return original;
             }
 
-            if (!"FEmusic_home".equals(original)) {
-                return original;
-            }
-
-            boolean changeAlways = Settings.CHANGE_START_PAGE_ALWAYS.get();
-            if (!changeAlways && appLaunched) {
+            if (!Settings.CHANGE_START_PAGE_ALWAYS.get() && appLaunched) {
                 Logger.printDebug(() -> "Ignore override browseId as the app already launched");
                 return original;
             }
@@ -125,13 +124,22 @@ public final class ChangeStartPagePatch {
 
     public static void overrideIntentActionOnCreate(Activity activity, @Nullable Bundle savedInstanceState) {
         try {
-            if (savedInstanceState != null) return;
+            if (savedInstanceState != null) {
+                Logger.printDebug(() -> "savedInstanceState is not null, not changing intent action");
+                return;
+            }
 
             StartPage startPage = Settings.CHANGE_START_PAGE.get();
-            if (startPage != StartPage.SEARCH) return;
+            if (startPage != StartPage.SEARCH) {
+                Logger.printDebug(() -> "Start page is not search, not changing intent action: " + startPage);
+                return;
+            }
 
             Intent originalIntent = activity.getIntent();
-            if (originalIntent == null) return;
+            if (originalIntent == null) {
+                Logger.printDebug(() -> "Original intent is null, not changing intent action");
+                return;
+            }
 
             if (ACTION_MAIN.equals(originalIntent.getAction())) {
                 Logger.printDebug(() -> "Cold start: Firing search activity directly");
