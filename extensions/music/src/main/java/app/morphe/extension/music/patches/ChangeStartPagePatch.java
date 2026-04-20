@@ -87,22 +87,25 @@ public final class ChangeStartPagePatch {
 
     public static String overrideBrowseId(@Nullable String original) {
         try {
-            StartPage startPage = Settings.CHANGE_START_PAGE.get();
-            Logger.printDebug(() -> "Original browseId: " + original + " startPage: " + startPage);
+            Logger.printDebug(() -> "Original browseId: " + original);
 
-            if ("FEmusic_home".equals(original)) {
-                if (forceHome) {
-                    forceHome = false;
-                    return original;
-                }
+            final boolean isMusicHome = "FEmusic_home".equals(original);
+            if (forceHome && isMusicHome) {
+                forceHome = false;
                 return original;
             }
 
+            if (!isMusicHome) {
+                return original;
+            }
+
+            StartPage startPage = Settings.CHANGE_START_PAGE.get();
             if (!startPage.isBrowseId()) {
                 return original;
             }
 
-            if (!Settings.CHANGE_START_PAGE_ALWAYS.get() && appLaunched) {
+            boolean changeAlways = Settings.CHANGE_START_PAGE_ALWAYS.get();
+            if (!changeAlways && appLaunched) {
                 Logger.printDebug(() -> "Ignore override browseId as the app already launched");
                 return original;
             }
@@ -146,7 +149,10 @@ public final class ChangeStartPagePatch {
                 Intent searchIntent = new Intent();
                 setSearchIntent(activity, searchIntent);
                 activity.startActivity(searchIntent);
+                return;
             }
+
+            Logger.printDebug(() -> "Not overriding intent action");
         } catch (Exception ex ){
             Logger.printException(() -> "overrideIntentActionOnCreate failure", ex);
         }
@@ -157,13 +163,17 @@ public final class ChangeStartPagePatch {
      * @return true to continue with original back behavior (minimizes), false to consume it (routes to home).
      */
     public static boolean onBackPressed(Activity activity) {
+        Logger.printDebug(() -> "onBackPressed");
+
         StartPage startPage = Settings.CHANGE_START_PAGE.get();
         if (startPage == StartPage.DEFAULT) {
+            Logger.printDebug(() -> "Ignoring default start page");
             return true;
         }
 
-        long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
         if (currentTime - lastBackPressTime < 2000) {
+            Logger.printDebug(() -> "Ignoring duplicate fast back button press");
             return true;
         }
 
@@ -172,6 +182,7 @@ public final class ChangeStartPagePatch {
 
         Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
         if (intent != null) {
+            Logger.printDebug(() -> "Launching back button intent");
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             activity.startActivity(intent);
         }
