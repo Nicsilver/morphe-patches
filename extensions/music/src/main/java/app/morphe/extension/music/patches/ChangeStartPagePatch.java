@@ -91,18 +91,17 @@ public final class ChangeStartPagePatch {
 
             final boolean isMusicHome = "FEmusic_home".equals(original);
 
-            StartPage startPage = Settings.CHANGE_START_PAGE.get();
-
             if (forceHome && isMusicHome) {
                 forceHome = false;
                 appLaunched = false;
-                return startPage.isBrowseId() ? startPage.id : original;
+                return original;
             }
 
             if (!isMusicHome) {
                 return original;
             }
 
+            StartPage startPage = Settings.CHANGE_START_PAGE.get();
             if (!startPage.isBrowseId()) {
                 return original;
             }
@@ -143,19 +142,21 @@ public final class ChangeStartPagePatch {
 
             Intent originalIntent = activity.getIntent();
             if (originalIntent == null) {
-                Logger.printDebug(() -> "Original intent is null, not changing intent action");
                 return;
             }
 
             if (ACTION_MAIN.equals(originalIntent.getAction())) {
+                boolean changeAlways = Settings.CHANGE_START_PAGE_ALWAYS.get();
+                if (!changeAlways && appLaunched) {
+                    return;
+                }
+
                 Logger.printDebug(() -> "Cold start: Firing search activity directly");
                 Intent searchIntent = new Intent();
                 setSearchIntent(activity, searchIntent);
                 activity.startActivity(searchIntent);
-                return;
+                appLaunched = true;
             }
-
-            Logger.printDebug(() -> "Not overriding intent action");
         } catch (Exception ex ){
             Logger.printException(() -> "overrideIntentActionOnCreate failure", ex);
         }
@@ -163,26 +164,27 @@ public final class ChangeStartPagePatch {
 
     public static void overrideIntentActionOnNewIntent(Activity activity, Intent intent) {
         try {
-            StartPage startPage = Settings.CHANGE_START_PAGE.get();
-            if (startPage != StartPage.SEARCH) {
-                Logger.printDebug(() -> "Start page is not search, not changing intent action on resume");
-                return;
-            }
+            if (intent == null) return;
 
-            if (intent == null) {
-                Logger.printDebug(() -> "New intent is null");
-                return;
-            }
-
-            if (forceHome || ACTION_MAIN.equals(intent.getAction())) {
-                Logger.printDebug(() -> "Resume: Firing search activity directly");
-                Intent searchIntent = new Intent();
-                setSearchIntent(activity, searchIntent);
-                activity.startActivity(searchIntent);
-
+            if (forceHome) {
+                Logger.printDebug(() -> "Back button escape: Resetting flags and allowing default routing");
                 forceHome = false;
-                appLaunched = true;
+                appLaunched = false;
+                return;
             }
+
+            if (ACTION_MAIN.equals(intent.getAction())) {
+                StartPage startPage = Settings.CHANGE_START_PAGE.get();
+                boolean changeAlways = Settings.CHANGE_START_PAGE_ALWAYS.get();
+
+                if (changeAlways && startPage == StartPage.SEARCH) {
+                    Logger.printDebug(() -> "Resume: Firing search activity directly");
+                    Intent searchIntent = new Intent();
+                    setSearchIntent(activity, searchIntent);
+                    activity.startActivity(searchIntent);
+                }
+            }
+
         } catch (Exception ex ){
             Logger.printException(() -> "overrideIntentActionOnNewIntent failure", ex);
         }
