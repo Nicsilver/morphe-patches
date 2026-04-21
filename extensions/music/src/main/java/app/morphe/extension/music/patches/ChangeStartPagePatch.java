@@ -35,8 +35,8 @@ public final class ChangeStartPagePatch {
         PLAYLISTS("FEmusic_liked_playlists", TRUE),
         PODCASTS("FEmusic_non_music_audio", TRUE),
         SUBSCRIPTIONS("FEmusic_library_corpus_artists", TRUE),
-        EPISODES_FOR_LATER("VLSE", false),
-        LIKED_MUSIC("VLLM", false),
+        EPISODES_FOR_LATER("SE", false),
+        LIKED_MUSIC("LM", false),
         SEARCH("", false);
 
         @NonNull
@@ -126,7 +126,6 @@ public final class ChangeStartPagePatch {
                     return original;
                 }
             }
-
             return overrideBrowseId;
         } catch (Exception ex) {
             return original;
@@ -153,12 +152,15 @@ public final class ChangeStartPagePatch {
                     setSearchIntent(activity, searchIntent);
                     searchIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     activity.startActivity(searchIntent);
+                    activity.overridePendingTransition(0, 0);
                 }
                 else if (startPage == StartPage.LIKED_MUSIC || startPage == StartPage.EPISODES_FOR_LATER) {
-                    originalIntent.setAction(Intent.ACTION_VIEW);
-                    originalIntent.setData(android.net.Uri.parse("https://music.youtube.com/playlist?list=" + startPage.id));
-                    originalIntent.removeCategory(Intent.CATEGORY_LAUNCHER);
-                    activity.setIntent(originalIntent);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(android.net.Uri.parse("https://music.youtube.com/playlist?list=" + startPage.id));
+                    intent.setPackage(activity.getPackageName());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    activity.startActivity(intent);
+                    activity.overridePendingTransition(0, 0);
                 }
             }
         } catch (Exception ex ){
@@ -180,11 +182,14 @@ public final class ChangeStartPagePatch {
                         setSearchIntent(activity, searchIntent);
                         searchIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                         activity.startActivity(searchIntent);
+                        activity.overridePendingTransition(0, 0);
                     } else if (startPage == StartPage.LIKED_MUSIC || startPage == StartPage.EPISODES_FOR_LATER) {
-                        intent.setAction(Intent.ACTION_VIEW);
-                        intent.setData(android.net.Uri.parse("https://music.youtube.com/playlist?list=" + startPage.id));
-                        intent.removeCategory(Intent.CATEGORY_LAUNCHER);
-                        activity.setIntent(intent);
+                        Intent newIntent = new Intent(Intent.ACTION_VIEW);
+                        newIntent.setData(android.net.Uri.parse("https://music.youtube.com/playlist?list=" + startPage.id));
+                        newIntent.setPackage(activity.getPackageName());
+                        newIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        activity.startActivity(newIntent);
+                        activity.overridePendingTransition(0, 0);
                     }
                 }
             }
