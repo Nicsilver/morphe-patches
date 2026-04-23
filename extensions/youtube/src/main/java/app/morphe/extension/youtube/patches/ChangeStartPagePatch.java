@@ -94,6 +94,10 @@ public final class ChangeStartPagePatch {
             return original;
         }
 
+        if (!"FEwhat_to_watch".equals(original)) {
+            return original;
+        }
+
         Logger.printDebug(() -> "Changing browseId to: " + START_PAGE.id);
         return START_PAGE.id;
     }
