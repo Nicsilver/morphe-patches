@@ -200,10 +200,6 @@ final class CustomFilter extends Filter {
         }
 
         // Check buffer if specified.
-        if (custom.bufferSearch != null && !custom.bufferSearch.matches(buffer)) {
-            return false;
-        }
-
-        return true; // All custom filter conditions passed.
+        return custom.bufferSearch == null || custom.bufferSearch.matches(buffer); // All custom filter conditions passed.
     }
 }

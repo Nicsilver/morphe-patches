@@ -26,99 +26,86 @@ import app.morphe.extension.youtube.shared.ConversionContext.ContextInterface;
 @SuppressWarnings("unused")
 public final class LithoFilterPatch {
     /**
-     * Simple wrapper to pass the litho parameters through the prefix search.
-     */
-    private static final class LithoFilterParameters {
-        final ContextInterface contextInterface;
-        final String identifier;
-        final String path;
-        final String accessibility;
-        final byte[] buffer;
-
-        LithoFilterParameters(ContextInterface contextInterface, String identifier,
-                              String path, String accessibility, byte[] buffer) {
-            this.contextInterface = contextInterface;
-            this.identifier = identifier;
-            this.path = path;
-            this.accessibility = accessibility;
-            this.buffer = buffer;
-        }
+         * Simple wrapper to pass the litho parameters through the prefix search.
+         */
+        private record LithoFilterParameters(ContextInterface contextInterface, String identifier,
+                                             String path, String accessibility, byte[] buffer) {
 
         @NonNull
-        @Override
-        public String toString() {
-            // Estimate the percentage of the buffer that are Strings.
-            StringBuilder builder = new StringBuilder(Math.max(100, buffer.length / 2));
-            builder.append( "ID: ");
-            builder.append(identifier);
-            if (!accessibility.isEmpty()) {
-                // AccessibilityId and AccessibilityText are pieces of BufferStrings.
-                builder.append(" Accessibility: ");
-                builder.append(accessibility);
+            @Override
+            public String toString() {
+                // Estimate the percentage of the buffer that are Strings.
+                StringBuilder builder = new StringBuilder(Math.max(100, buffer.length / 2));
+                builder.append("ID: ");
+                builder.append(identifier);
+                if (!accessibility.isEmpty()) {
+                    // AccessibilityId and AccessibilityText are pieces of BufferStrings.
+                    builder.append(" Accessibility: ");
+                    builder.append(accessibility);
+                }
+                builder.append(" Path: ");
+                builder.append(path);
+                if (Settings.DEBUG_PROTOBUFFER.get()) {
+                    builder.append(" BufferStrings: ");
+                    findAsciiStrings(builder, buffer);
+                }
+
+                return builder.toString();
             }
-            builder.append(" Path: ");
-            builder.append(path);
-            if (Settings.DEBUG_PROTOBUFFER.get()) {
-                builder.append(" BufferStrings: ");
-                findAsciiStrings(builder, buffer);
-            }
 
-            return builder.toString();
-        }
+            /**
+             * Search through a byte array for all ASCII strings.
+             */
+            static void findAsciiStrings(StringBuilder builder, byte[] buffer) {
+                // Valid ASCII values (ignore control characters).
+                final int minimumAscii = 32;  // 32 = space character
+                final int maximumAscii = 126; // 127 = delete character
+                final int minimumAsciiStringLength = 4; // Minimum length of an ASCII string to include.
+                // Logger ignores text past 4096 bytes on each line. Must wrap lines otherwise logging is clipped.
+                final int preferredLineLength = 3000; // Preferred length before wrapping on next substring.
+                final int maxLineLength = 3300; // Hard limit to line wrap in the middle of substring.
+                String delimitingCharacter = "❙"; // Non ascii character, to allow easier log filtering.
 
-        /**
-         * Search through a byte array for all ASCII strings.
-         */
-        static void findAsciiStrings(StringBuilder builder, byte[] buffer) {
-            // Valid ASCII values (ignore control characters).
-            final int minimumAscii = 32;  // 32 = space character
-            final int maximumAscii = 126; // 127 = delete character
-            final int minimumAsciiStringLength = 4; // Minimum length of an ASCII string to include.
-            // Logger ignores text past 4096 bytes on each line. Must wrap lines otherwise logging is clipped.
-            final int preferredLineLength = 3000; // Preferred length before wrapping on next substring.
-            final int maxLineLength = 3300; // Hard limit to line wrap in the middle of substring.
-            String delimitingCharacter = "❙"; // Non ascii character, to allow easier log filtering.
+                final int length = buffer.length;
+                final int lastIndex = length - 1;
+                int start = 0;
+                int currentLineLength = 0;
 
-            final int length = buffer.length;
-            final int lastIndex = length - 1;
-            int start = 0;
-            int currentLineLength = 0;
+                for (int end = 0; end < length; end++) {
+                    final int value = buffer[end];
+                    final boolean isAscii = (value >= minimumAscii && value <= maximumAscii);
+                    final boolean atEnd = (end == lastIndex);
 
-            for (int end = 0; end < length; end++) {
-                final int value = buffer[end];
-                final boolean isAscii = (value >= minimumAscii && value <= maximumAscii);
-                final boolean atEnd = (end == lastIndex);
+                    if (!isAscii || atEnd) {
+                        int wordEnd = end + ((atEnd && isAscii) ? 1 : 0);
 
-                if (!isAscii || atEnd) {
-                    int wordEnd = end + ((atEnd && isAscii) ? 1 : 0);
+                        if (wordEnd - start >= minimumAsciiStringLength) {
+                            for (int i = start; i < wordEnd; i++) {
+                                builder.append((char) buffer[i]);
+                                currentLineLength++;
 
-                    if (wordEnd - start >= minimumAsciiStringLength) {
-                        for (int i = start; i < wordEnd; i++) {
-                            builder.append((char) buffer[i]);
-                            currentLineLength++;
+                                // Hard line limit. Hard wrap the current substring to next logger line.
+                                if (currentLineLength >= maxLineLength) {
+                                    builder.append('\n');
+                                    currentLineLength = 0;
+                                }
+                            }
 
-                            // Hard line limit. Hard wrap the current substring to next logger line.
-                            if (currentLineLength >= maxLineLength) {
+                            // Wrap after substring if over preferred limit.
+                            if (currentLineLength >= preferredLineLength) {
                                 builder.append('\n');
                                 currentLineLength = 0;
                             }
+
+                            builder.append(delimitingCharacter);
+                            currentLineLength++;
                         }
 
-                        // Wrap after substring if over preferred limit.
-                        if (currentLineLength >= preferredLineLength) {
-                            builder.append('\n');
-                            currentLineLength = 0;
-                        }
-
-                        builder.append(delimitingCharacter);
-                        currentLineLength++;
+                        start = end + 1;
                     }
-
-                    start = end + 1;
                 }
             }
         }
-    }
 
     /**
      * Placeholder for actual filters.
@@ -190,14 +177,14 @@ public final class LithoFilterPatch {
                             if (!group.isEnabled()) return false;
 
                             LithoFilterParameters parameters = (LithoFilterParameters) callbackParameter;
-                            final boolean isFiltered = filter.isFiltered(parameters.contextInterface,
-                                    parameters.identifier, parameters.accessibility, parameters.path,
-                                    parameters.buffer, group, type, matchedStartIndex);
+                            final boolean isFiltered = filter.isFiltered(parameters.contextInterface(),
+                                    parameters.identifier(), parameters.accessibility(), parameters.path(),
+                                    parameters.buffer(), group, type, matchedStartIndex);
 
                             if (isFiltered && BaseSettings.DEBUG.get()) {
                                 Logger.printDebug(() -> type == Filter.FilterContentType.IDENTIFIER
-                                        ? filterSimpleName + " filtered identifier: " + parameters.identifier
-                                        : filterSimpleName + " filtered path: " + parameters.path);
+                                        ? filterSimpleName + " filtered identifier: " + parameters.identifier()
+                                        : filterSimpleName + " filtered path: " + parameters.path());
                             }
 
                             return isFiltered;
@@ -233,6 +220,7 @@ public final class LithoFilterPatch {
         try {
             String identifier = contextInterface.patch_getIdentifier();
             StringBuilder pathBuilder = contextInterface.patch_getPathBuilder();
+            //noinspection SizeReplaceableByIsEmpty
             if (identifier.isEmpty() || pathBuilder.length() == 0) {
                 return false;
             }
