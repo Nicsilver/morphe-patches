@@ -993,6 +993,14 @@ If later turned off, it is recommended to clear the app data to prevent UI bugs.
     <string name="morphe_shorts_player_type_regular_player_fullscreen">Regular player fullscreen</string>
 
     <!-- layout.shortsautoplay.shortsAutoplayPatch -->
+    <!-- layout.shortsplayer.dimShortsOverlayPatch -->
+    <string name="morphe_shorts_overlay_opacity_title">Shorts overlay opacity</string>
+    <string name="morphe_shorts_overlay_opacity_summary">Opacity of the Shorts overlay (0-100), where 0 is transparent. Reducing this prevents OLED burn-in.</string>
+    <string name="morphe_shorts_overlay_opacity_invalid_toast">Shorts overlay opacity must be between 0-100</string>
+    <string name="morphe_shorts_immersive_mode_title">Immersive Shorts</string>
+    <string name="morphe_shorts_immersive_mode_summary_on">Status bar is hidden when watching Shorts</string>
+    <string name="morphe_shorts_immersive_mode_summary_off">Status bar is visible when watching Shorts</string>
+
     <string name="morphe_shorts_autoplay_title">Autoplay Shorts</string>
     <string name="morphe_shorts_autoplay_summary">Advances to the next Short automatically instead of repeating the current one</string>
     <string name="morphe_shorts_autoplay_background_title">Autoplay in background</string>
