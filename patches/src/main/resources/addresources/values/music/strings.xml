@@ -174,6 +174,11 @@ Feature implementation by VazerOG"</string>
     <string name="morphe_music_hide_navigation_bar_labels_summary_on">Labels are hidden</string>
     <string name="morphe_music_hide_navigation_bar_labels_summary_off">Labels are shown</string>
 
+    <!-- interaction.copysonginfo.copySongInfoPatch -->
+    <string name="morphe_music_copy_song_info_title">Copy song info</string>
+    <string name="morphe_music_copy_song_info_summary_on">Long-press the title or artist to copy</string>
+    <string name="morphe_music_copy_song_info_summary_off">Long-press to copy is disabled</string>
+
     <!-- layout.upgradebutton.hideUpgradeButtonPatch -->
     <string name="morphe_music_hide_upgrade_button_title">Hide upgrade button</string>
     <string name="morphe_music_hide_upgrade_button_summary_on">Button is hidden</string>
