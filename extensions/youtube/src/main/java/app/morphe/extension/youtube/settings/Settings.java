@@ -451,6 +451,10 @@ public class Settings extends SharedYouTubeSettings {
     public static final BooleanSetting HIDE_SHORTS_USE_TEMPLATE_BUTTON = new BooleanSetting("morphe_hide_shorts_use_template_button", TRUE);
     public static final BooleanSetting HIDE_SHORTS_VIDEO_DESCRIPTION = new BooleanSetting("morphe_hide_shorts_video_description", FALSE);
     public static final BooleanSetting HIDE_SHORTS_VIDEO_TITLE = new BooleanSetting("morphe_hide_shorts_video_title", FALSE);
+    public static final BooleanSetting HIDE_SHORTS_IMAGE_POSTS = new BooleanSetting("morphe_hide_shorts_image_posts", TRUE);
+    public static final BooleanSetting SKIP_LOW_ENGAGEMENT_SHORTS = new BooleanSetting("morphe_skip_low_engagement_shorts", TRUE);
+    public static final IntegerSetting SHORTS_MIN_LIKES = new IntegerSetting("morphe_shorts_min_likes", 1000, false, parent(SKIP_LOW_ENGAGEMENT_SHORTS));
+    public static final IntegerSetting SHORTS_MIN_COMMENTS = new IntegerSetting("morphe_shorts_min_comments", 20, false, parent(SKIP_LOW_ENGAGEMENT_SHORTS));
     public static final BooleanSetting SHORTS_AUTOPLAY = new BooleanSetting("morphe_shorts_autoplay", FALSE);
     public static final BooleanSetting SHORTS_AUTOPLAY_BACKGROUND = new BooleanSetting("morphe_shorts_autoplay_background", TRUE);
     public static final IntegerSetting SHORTS_OVERLAY_OPACITY = new IntegerSetting("morphe_shorts_overlay_opacity", 90, false);

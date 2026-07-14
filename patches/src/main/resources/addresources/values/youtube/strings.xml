@@ -812,6 +812,18 @@ To show the \'Audio Track\' menu, change \'Spoof video streams\' to \'Android Re
     <string name="morphe_hide_shorts_full_video_link_label_title">Hide video link label</string>
     <string name="morphe_disable_shorts_double_tap_to_like_title">Disable double-tap to like</string>
     <string name="morphe_hide_shorts_navigation_bar_title">Hide navigation bar</string>
+    <string name="morphe_hide_shorts_image_posts_title">Hide image posts in Shorts</string>
+    <string name="morphe_hide_shorts_image_posts_summary_on">Non-video image/photo posts are hidden in the Shorts feed.</string>
+    <string name="morphe_hide_shorts_image_posts_summary_off">Non-video image/photo posts are shown in the Shorts feed.</string>
+    <string name="morphe_skip_low_engagement_shorts_title">Skip low-engagement Shorts</string>
+    <string name="morphe_skip_low_engagement_shorts_summary_on">"Automatically skips Shorts with fewer likes or comments than the thresholds below.
+
+Experimental: needs autoplay/auto-advance enabled to move to the next Short."</string>
+    <string name="morphe_skip_low_engagement_shorts_summary_off">Low-engagement Shorts are not skipped.</string>
+    <string name="morphe_shorts_min_likes_title">Minimum likes</string>
+    <string name="morphe_shorts_min_likes_summary">Skip Shorts with fewer likes than this. Default: 1000.</string>
+    <string name="morphe_shorts_min_comments_title">Minimum comments</string>
+    <string name="morphe_shorts_min_comments_summary">Skip Shorts with fewer comments than this. Default: 20.</string>
 
     <!-- layout.hide.endscreensuggestedvideo.hideEndScreenSuggestedVideoPatch -->
     <string name="morphe_hide_end_screen_suggested_video_title">Hide end screen suggested video</string>

@@ -38,6 +38,7 @@ public class PlayerTypeHookPatch {
      * @param view shorts player overlay (R.id.reel_watch_player).
      */
     public static void onShortsCreate(View view) {
+        SkipLowEngagementShortsPatch.setReelPlayerView(view);
         view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
             @Override
             public void onViewAttachedToWindow(@Nullable View v) {

@@ -498,6 +498,12 @@ public class ReturnYouTubeDislike {
      */
     @NonNull
     public synchronized Spanned getLikeSpanForShort(@NonNull Spanned original) {
+        // Report the like count so low-engagement Shorts can be skipped.
+        RYDVoteData data = getFetchData(MAX_MILLISECONDS_TO_BLOCK_UI_WAITING_FOR_FETCH);
+        if (data != null) {
+            app.morphe.extension.youtube.patches.SkipLowEngagementShortsPatch
+                    .onShortLikeCount(videoId, data.getLikeCount());
+        }
         return waitForFetchAndUpdateReplacementSpan(original, false,
                 false, true, true);
     }
