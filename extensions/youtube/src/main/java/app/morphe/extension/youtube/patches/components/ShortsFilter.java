@@ -32,6 +32,7 @@ import app.morphe.extension.shared.patches.components.ContextInterface;
 import app.morphe.extension.shared.patches.components.Filter;
 import app.morphe.extension.shared.patches.components.StringFilterGroup;
 import app.morphe.extension.shared.patches.components.StringFilterGroupList;
+import app.morphe.extension.youtube.patches.SkipLowEngagementShortsPatch;
 import app.morphe.extension.youtube.settings.Settings;
 import app.morphe.extension.youtube.shared.EngagementPanel;
 import app.morphe.extension.youtube.shared.NavigationBar;
@@ -104,6 +105,17 @@ public final class ShortsFilter extends Filter {
     private final StringFilterGroup shortsActionBar;
     private final StringFilterGroup shortsActionButton;
     private final StringFilterGroupList shortsActionButtonGroupList = new StringFilterGroupList();
+
+    /**
+     * Non-video image/photo "posts" that appear in the Shorts scroll.
+     */
+    private final StringFilterGroup imagePostsInShorts;
+
+    /**
+     * Always-on observation of the Shorts like button, used to capture the like count for
+     * {@link SkipLowEngagementShortsPatch}. Never hides anything itself.
+     */
+    private final StringFilterGroup likeButtonObserve;
 
     public ShortsFilter() {
         //
@@ -302,11 +314,29 @@ public final class ShortsFilter extends Filter {
                 "suggested_action.e"
         );
 
+        // Image/photo posts that appear in the Shorts scroll (non-video "community post" style items).
+        imagePostsInShorts = new StringFilterGroup(
+                Settings.HIDE_SHORTS_IMAGE_POSTS,
+                "images_post_root.e",
+                "images_post_root_slim.e",
+                "image_post",
+                "post_base_wrapper_slim.e"
+        );
+
+        // Always-on observation of the like button (setting is null so it is always enabled).
+        likeButtonObserve = new StringFilterGroup(
+                null,
+                "shorts_like_button.e",
+                "reel_like_button.e",
+                "reel_like_toggled_button.e"
+        );
+
         addPathCallbacks(
                 shortsCompactFeedVideo, shelfHeaderPath, joinButton, subscribeButton, livePreview,
                 suggestedAction, pausedOverlayButtons, channelBar, infoPanel, previewComment,
                 autoDubbedLabel, fullVideoLinkLabel, videoTitle, soundButton, useButtons, likeFountain,
-                reelCarousel, reelSoundMetadata, likeButton, shortsActionBar
+                reelCarousel, reelSoundMetadata, likeButton, shortsActionBar,
+                imagePostsInShorts, likeButtonObserve
         );
 
         //
@@ -445,6 +475,18 @@ public final class ShortsFilter extends Filter {
         }
 
         if (contentType == FilterContentType.PATH) {
+            // Observe the like button to capture the like count, but never hide it here.
+            if (matchedGroup == likeButtonObserve) {
+                SkipLowEngagementShortsPatch.setLikeAccessibility(accessibility);
+                return false;
+            }
+
+            // Hide non-video image/photo posts, but only inside the Shorts player scroll so the
+            // home-feed community-post filter is not affected.
+            if (matchedGroup == imagePostsInShorts) {
+                return ShortsPlayerState.isOpen();
+            }
+
             if (matchedGroup == subscribeButton || matchedGroup == joinButton || matchedGroup == autoDubbedLabel) {
                 // Selectively filter to avoid false positive filtering of other subscribe/join buttons.
                 return path.startsWith(REEL_CHANNEL_BAR_PATH) || path.startsWith(REEL_METAPANEL_PATH)

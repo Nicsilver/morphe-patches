@@ -20,9 +20,11 @@ import app.morphe.patches.all.misc.resources.ResourceType
 import app.morphe.patches.all.misc.resources.getResourceId
 import app.morphe.patches.all.misc.resources.resourceMappingPatch
 import app.morphe.patches.shared.misc.litho.filter.addLithoFilter
+import app.morphe.patches.shared.misc.settings.preference.InputType
 import app.morphe.patches.shared.misc.settings.preference.PreferenceCategory
 import app.morphe.patches.shared.misc.settings.preference.PreferenceScreenPreference
 import app.morphe.patches.shared.misc.settings.preference.SwitchPreference
+import app.morphe.patches.shared.misc.settings.preference.TextPreference
 import app.morphe.patches.youtube.misc.engagement.engagementPanelHookPatch
 import app.morphe.patches.youtube.misc.extension.sharedExtensionPatch
 import app.morphe.patches.youtube.misc.litho.filter.lithoFilterPatch
@@ -82,6 +84,10 @@ private val hideShortsComponentsResourcePatch = resourcePatch {
                 )
             ),
             SwitchPreference("morphe_disable_shorts_double_tap_to_like"),
+            SwitchPreference("morphe_hide_shorts_image_posts"),
+            SwitchPreference("morphe_skip_low_engagement_shorts"),
+            TextPreference("morphe_shorts_min_likes", inputType = InputType.NUMBER),
+            TextPreference("morphe_shorts_min_comments", inputType = InputType.NUMBER),
             PreferenceScreenPreference(
                 key = "morphe_shorts_player_screen",
                 sorting = PreferenceScreenPreference.Sorting.UNSORTED,
