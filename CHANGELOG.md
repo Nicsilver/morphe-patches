@@ -1,3 +1,9 @@
+## [1.34.2](https://github.com/Nicsilver/morphe-patches/compare/v1.34.1...v1.34.2) (2026-07-14)
+
+### 🐛 Bug Fixes
+
+* Use fork-friendly release workflow ([150cdc0](https://github.com/Nicsilver/morphe-patches/commit/150cdc0236c1123680fafff51610f0bae1d3d59d))
+
 ## [1.34.0](https://github.com/MorpheApp/morphe-patches/compare/v1.33.0...v1.34.0) (2026-07-10)
 
 ### 🐛 Bug Fixes
