@@ -33,6 +33,7 @@ import app.morphe.extension.shared.patches.components.Filter;
 import app.morphe.extension.shared.patches.components.StringFilterGroup;
 import app.morphe.extension.shared.patches.components.StringFilterGroupList;
 import app.morphe.extension.youtube.patches.SkipLowEngagementShortsPatch;
+import app.morphe.extension.youtube.patches.VideoInformation;
 import app.morphe.extension.youtube.settings.Settings;
 import app.morphe.extension.youtube.shared.EngagementPanel;
 import app.morphe.extension.youtube.shared.NavigationBar;
@@ -110,12 +111,6 @@ public final class ShortsFilter extends Filter {
      * Non-video image/photo "posts" that appear in the Shorts scroll.
      */
     private final StringFilterGroup imagePostsInShorts;
-
-    /**
-     * Always-on observation of the Shorts like button, used to capture the like count for
-     * {@link SkipLowEngagementShortsPatch}. Never hides anything itself.
-     */
-    private final StringFilterGroup likeButtonObserve;
 
     public ShortsFilter() {
         //
@@ -323,20 +318,12 @@ public final class ShortsFilter extends Filter {
                 "post_base_wrapper_slim.e"
         );
 
-        // Always-on observation of the like button (setting is null so it is always enabled).
-        likeButtonObserve = new StringFilterGroup(
-                null,
-                "shorts_like_button.e",
-                "reel_like_button.e",
-                "reel_like_toggled_button.e"
-        );
-
         addPathCallbacks(
                 shortsCompactFeedVideo, shelfHeaderPath, joinButton, subscribeButton, livePreview,
                 suggestedAction, pausedOverlayButtons, channelBar, infoPanel, previewComment,
                 autoDubbedLabel, fullVideoLinkLabel, videoTitle, soundButton, useButtons, likeFountain,
                 reelCarousel, reelSoundMetadata, likeButton, shortsActionBar,
-                imagePostsInShorts, likeButtonObserve
+                imagePostsInShorts
         );
 
         //
@@ -475,12 +462,6 @@ public final class ShortsFilter extends Filter {
         }
 
         if (contentType == FilterContentType.PATH) {
-            // Observe the like button to capture the like count, but never hide it here.
-            if (matchedGroup == likeButtonObserve) {
-                SkipLowEngagementShortsPatch.setLikeAccessibility(accessibility);
-                return false;
-            }
-
             // Hide non-video image/photo posts, but only inside the Shorts player scroll so the
             // home-feed community-post filter is not affected.
             if (matchedGroup == imagePostsInShorts) {
@@ -527,6 +508,8 @@ public final class ShortsFilter extends Filter {
             // Video action buttons (comment, share, remix) have the same path.
             // Like and dislike are separate path filters and don't require buffer searching.
             if (matchedGroup == shortsActionBar) {
+                // Capture the comment count from the action bar buffer for the skip feature.
+                SkipLowEngagementShortsPatch.captureCommentCount(VideoInformation.getVideoId(), buffer);
                 if (shortsActionButton.check(path).isFiltered()) {
                     return shortsActionButtonGroupList.check(accessibility).isFiltered();
                 }
