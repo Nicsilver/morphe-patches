@@ -29,6 +29,8 @@ import app.morphe.extension.shared.patches.components.Filter;
 import app.morphe.extension.shared.patches.components.StringFilterGroup;
 import app.morphe.extension.shared.patches.components.StringFilterGroupList;
 import app.morphe.extension.youtube.patches.LayoutReloadObserverPatch;
+import app.morphe.extension.youtube.patches.SkipLowEngagementShortsPatch;
+import app.morphe.extension.youtube.patches.VideoInformation;
 import app.morphe.extension.youtube.settings.Settings;
 import app.morphe.extension.youtube.shared.EngagementPanel;
 import app.morphe.extension.youtube.shared.NavigationBar;
@@ -96,6 +98,11 @@ public final class ShortsFilter extends Filter {
     private final ByteArrayFilterGroupList suggestedActionsBuffer = new ByteArrayFilterGroupList();
     private final StringFilterGroup useButtons;
     private final ByteArrayFilterGroupList useButtonsBuffer = new ByteArrayFilterGroupList();
+
+    /**
+     * Non-video image/photo "posts" that appear in the Shorts scroll.
+     */
+    private final StringFilterGroup imagePostsInShorts;
 
     public ShortsFilter() {
         //
@@ -299,6 +306,15 @@ public final class ShortsFilter extends Filter {
                 "suggested_action.e"
         );
 
+        // Image/photo posts that appear in the Shorts scroll (non-video "community post" style items).
+        imagePostsInShorts = new StringFilterGroup(
+                Settings.HIDE_SHORTS_IMAGE_POSTS,
+                "images_post_root.e",
+                "images_post_root_slim.e",
+                "image_post",
+                "post_base_wrapper_slim.e"
+        );
+
         //
         // Suggested actions.
         //
@@ -404,6 +420,7 @@ public final class ShortsFilter extends Filter {
                 autoDubbedLabel,
                 channelBar,
                 fullVideoLinkLabel,
+                imagePostsInShorts,
                 infoPanel,
                 joinButton,
                 likeButton,
@@ -465,6 +482,12 @@ public final class ShortsFilter extends Filter {
         }
 
         if (contentType == FilterContentType.PATH) {
+            // Hide non-video image/photo posts, but only inside the Shorts player scroll so the
+            // home-feed community-post filter is not affected.
+            if (matchedGroup == imagePostsInShorts) {
+                return ShortsPlayerState.isOpen();
+            }
+
             if (matchedGroup == subscribeButton || matchedGroup == joinButton || matchedGroup == autoDubbedLabel) {
                 // Selectively filter to avoid false positive filtering of other subscribe/join buttons.
                 return path.startsWith(REEL_CHANNEL_BAR_PATH) || path.startsWith(REEL_METAPANEL_PATH)
@@ -505,6 +528,8 @@ public final class ShortsFilter extends Filter {
             // Video action buttons (comment, share, remix) have the same path.
             // Like and dislike are separate path filters and don't require buffer searching.
             if (matchedGroup == shortsActionBar) {
+                // Capture the comment count from the action bar buffer for the skip feature.
+                SkipLowEngagementShortsPatch.captureCommentCount(VideoInformation.getVideoId(), buffer);
                 if (shortsActionButton.check(path).isFiltered()) {
                     return shortsActionButtonGroupList.check(accessibility).isFiltered();
                 }
