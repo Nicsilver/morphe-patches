@@ -1,3 +1,15 @@
+## [1.48.0](https://github.com/Nicsilver/morphe-patches/compare/v1.47.0...v1.48.0) (2026-10-16)
+
+### 🐛 Bug Fixes
+
+* Use fork-friendly release workflow ([ddc50d3](https://github.com/Nicsilver/morphe-patches/commit/ddc50d34d12d846aee910dc5ae191da3a5c8a938))
+
+### ✨ New Features
+
+* **YouTube:** Add 'Dim Shorts overlay' patch ([7ea1641](https://github.com/Nicsilver/morphe-patches/commit/7ea1641404fbabef30dde5eac95b682f01f6c6f6))
+* **YouTube:** Add Shorts image-post filter + low-engagement skip ([f91ce43](https://github.com/Nicsilver/morphe-patches/commit/f91ce4372fae3970cadf550c702fbac45ba96db9))
+* **YouTube:** Advance low-engagement Shorts via native swipe gesture ([8a0a508](https://github.com/Nicsilver/morphe-patches/commit/8a0a50814ca07ab1932732801fb1f641b4c01d35))
+
 ## [1.47.0](https://github.com/MorpheApp/morphe-patches/compare/v1.46.0...v1.47.0) (2026-10-11)
 
 ### 🐛 Bug Fixes
