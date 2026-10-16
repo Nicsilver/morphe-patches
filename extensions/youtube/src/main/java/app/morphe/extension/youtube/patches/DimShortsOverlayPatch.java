@@ -11,6 +11,10 @@ import android.view.Window;
 import android.view.WindowInsetsController;
 import android.widget.ImageView;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
+
 import app.morphe.extension.shared.Logger;
 import app.morphe.extension.youtube.settings.Settings;
 import app.morphe.extension.youtube.shared.NavigationBar.NavigationButton;
@@ -20,6 +24,9 @@ import app.morphe.extension.youtube.shared.ShortsPlayerState;
 public class DimShortsOverlayPatch {
 
     private static int reelTimeBarId = 0;
+    private static int appBarId = 0;
+
+    private static final Set<View> dimListenerViews = Collections.newSetFromMap(new WeakHashMap<>());
 
     /**
      * Injection point.
@@ -31,6 +38,7 @@ public class DimShortsOverlayPatch {
             private Window window;
             private boolean wasImmersive = false;
             private boolean reelTimeBarListenerAdded = false;
+            private boolean appBarListenerAdded = false;
 
             @Override
             public void onViewAttachedToWindow(View v) {
@@ -44,6 +52,10 @@ public class DimShortsOverlayPatch {
                 if (reelTimeBarId == 0) {
                     reelTimeBarId = v.getContext().getResources()
                             .getIdentifier("reel_time_bar", "id", v.getContext().getPackageName());
+                }
+                if (appBarId == 0) {
+                    appBarId = v.getContext().getResources()
+                            .getIdentifier("appbar_layout", "id", v.getContext().getPackageName());
                 }
 
                 preDrawListener = () -> {
@@ -59,6 +71,18 @@ public class DimShortsOverlayPatch {
                         if (rtb != null) {
                             addShortsAwareDimListener(rtb);
                             reelTimeBarListenerAdded = true;
+                        }
+                    }
+
+                    // The top bar (back arrow, Shorts label, toolbar buttons) is a sibling of the
+                    // Shorts player, not part of its overlay. Several of its views are not created
+                    // through the toolbar hook, so dim the whole bar. Searching up from the overlay
+                    // picks the bar belonging to this player; other screens can have their own.
+                    if (!appBarListenerAdded && appBarId != 0) {
+                        View appBar = findViewAbove(v, appBarId);
+                        if (appBar != null) {
+                            addShortsAwareDimListener(appBar);
+                            appBarListenerAdded = true;
                         }
                     }
 
@@ -85,11 +109,22 @@ public class DimShortsOverlayPatch {
                     wasImmersive = false;
                 }
                 reelTimeBarListenerAdded = false;
+                appBarListenerAdded = false;
                 preDrawListener = null;
                 registeredObserver = null;
                 window = null;
             }
         });
+    }
+
+    private static View findViewAbove(View view, int id) {
+        ViewParent parent = view.getParent();
+        while (parent instanceof View parentView) {
+            View found = parentView.findViewById(id);
+            if (found != null) return found;
+            parent = parentView.getParent();
+        }
+        return null;
     }
 
     private static Window getWindow(View view) {
@@ -142,6 +177,8 @@ public class DimShortsOverlayPatch {
     }
 
     private static void addShortsAwareDimListener(View view) {
+        if (!dimListenerViews.add(view)) return;
+
         View.OnAttachStateChangeListener listener = new View.OnAttachStateChangeListener() {
             private ViewTreeObserver registeredObserver;
             private ViewTreeObserver.OnPreDrawListener preDrawListener;
