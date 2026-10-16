@@ -1,3 +1,9 @@
+## [1.48.1](https://github.com/Nicsilver/morphe-patches/compare/v1.48.0...v1.48.1) (2026-10-16)
+
+### 🐛 Bug Fixes
+
+* **YouTube - Dim Shorts overlay:** Dim back button and paused Shorts label ([5848894](https://github.com/Nicsilver/morphe-patches/commit/58488945180152f4b25b18e596876e96a70e6d47))
+
 ## [1.48.0](https://github.com/Nicsilver/morphe-patches/compare/v1.47.0...v1.48.0) (2026-10-16)
 
 ### 🐛 Bug Fixes

@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-16T22:35:14",
-  "description": "## [1.48.0](https://github.com/Nicsilver/morphe-patches/compare/v1.47.0...v1.48.0) (2026-10-16)\n\n### 🐛 Bug Fixes\n\n* Use fork-friendly release workflow ([ddc50d3](https://github.com/Nicsilver/morphe-patches/commit/ddc50d34d12d846aee910dc5ae191da3a5c8a938))\n\n### ✨ New Features\n\n* **YouTube:** Add 'Dim Shorts overlay' patch ([7ea1641](https://github.com/Nicsilver/morphe-patches/commit/7ea1641404fbabef30dde5eac95b682f01f6c6f6))\n* **YouTube:** Add Shorts image-post filter + low-engagement skip ([f91ce43](https://github.com/Nicsilver/morphe-patches/commit/f91ce4372fae3970cadf550c702fbac45ba96db9))\n* **YouTube:** Advance low-engagement Shorts via native swipe gesture ([8a0a508](https://github.com/Nicsilver/morphe-patches/commit/8a0a50814ca07ab1932732801fb1f641b4c01d35))",
-  "download_url": "https://github.com/Nicsilver/morphe-patches/releases/download/v1.48.0/patches-1.48.0.mpp",
+  "created_at": "2026-10-16T23:01:45",
+  "description": "## [1.48.1](https://github.com/Nicsilver/morphe-patches/compare/v1.48.0...v1.48.1) (2026-10-16)\n\n### 🐛 Bug Fixes\n\n* **YouTube - Dim Shorts overlay:** Dim back button and paused Shorts label ([5848894](https://github.com/Nicsilver/morphe-patches/commit/58488945180152f4b25b18e596876e96a70e6d47))",
+  "download_url": "https://github.com/Nicsilver/morphe-patches/releases/download/v1.48.1/patches-1.48.1.mpp",
   "signature_download_url": "",
-  "version": "1.48.0"
+  "version": "1.48.1"
 }
